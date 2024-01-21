@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras.layers import Layer, Dense
-
+import numpy as np
 class AttentionHead(Layer):
     def __init__(self, head_dim: int) -> None:
         """
@@ -17,21 +17,24 @@ class AttentionHead(Layer):
         self.k = Dense(head_dim)
         self.v = Dense(head_dim)
     
-    def _scaled_dot_product_attention(self, q, k, v) -> tf.Tensor:
+    def _scaled_dot_product_attention(self, query, key, value, mask=None) -> tf.Tensor:
         """
         Computes scaled dot product attention.
 
         Args:
-            q: Query tensor of shape [batch_size, seq_len_q, depth_q].
-            k: Key tensor of shape [batch_size, seq_len_k, depth_k].
-            v: Value tensor of shape [batch_size, seq_len_v, depth_v].
+            query: Query tensor of shape [batch_size, seq_len_q, depth_q].
+            key: Key tensor of shape [batch_size, seq_len_k, depth_k].
+            value: Value tensor of shape [batch_size, seq_len_v, depth_v].
+            mask: Mask tensor of shape [batch_size, seq_len_q, seq_len_k].
 
         Returns:
             Tensor of shape [batch_size, seq_len_q, depth_v] representing the output of scaled dot product attention.
         """
-        s = tf.matmul(q, k, transpose_b=True) / tf.math.sqrt(tf.cast(k.shape[-1], dtype=tf.float32))
-        w = tf.nn.softmax(s, axis=-1)
-        return tf.matmul(w, v)
+        scores = tf.matmul(query, key, transpose_b=True) / tf.math.sqrt(tf.cast(key.shape[-1], dtype=tf.float32))
+        if mask is not None:
+            scores = tf.where(mask, scores, tf.constant(-np.inf))
+        weights = tf.nn.softmax(scores, axis=-1)
+        return tf.matmul(weights, value)
         
     def call(self, inputs) -> tf.Tensor:
         """
