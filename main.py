@@ -1,5 +1,5 @@
 from transformers import AutoTokenizer
-from tf_layers.encoder import TransformerEncoder
+from tf_layers.transformer import TransformerEncoder, TransformerDecoder
 
 tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
@@ -12,6 +12,6 @@ encoded_input = encoded_input["input_ids"]
 VOCAB_SIZE = tokenizer.vocab_size
 
     
-encoder = TransformerEncoder(VOCAB_SIZE, 2, 600, 8)
+encoder = TransformerDecoder(VOCAB_SIZE, 2, 600, 8)
 output = encoder(encoded_input)
 print(output.shape)
