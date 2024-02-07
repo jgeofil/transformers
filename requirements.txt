@@ -1,0 +1,5 @@
+tensorflow[and-cuda]
+datasets
+transformers
+tokenizers
+ipywidgets
