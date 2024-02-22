@@ -4,4 +4,3 @@ transformers
 tokenizers
 ipywidgets
 seaborn
-keras_nlp
